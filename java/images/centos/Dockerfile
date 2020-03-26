@@ -12,7 +12,7 @@ ENV JOLOKIA_VERSION="1.6.2" \
     JAVA_DATA_DIR="/deployments/data"
 
 # Some version information
-LABEL io.fabric8.s2i.version.maven="3.5.4" \
+LABEL io.fabric8.s2i.version.maven="3.6.3" \
       io.fabric8.s2i.version.jolokia="1.6.2" \
       io.fabric8.s2i.version.prometheus.jmx_exporter="0.3.1" \
       io.k8s.description="Platform for building and running plain Java applications (fat-jar and flat classpath)" \
@@ -37,9 +37,9 @@ RUN yum -y update \
        java-1.8.0-openjdk \
        java-1.8.0-openjdk-devel \
   && yum clean all \
-  && curl https://archive.apache.org/dist/maven/maven-3/3.5.4/binaries/apache-maven-3.5.4-bin.tar.gz | \
+  && curl https://archive.apache.org/dist/maven/maven-3/3.6.3/binaries/apache-maven-3.6.3-bin.tar.gz | \
     tar -xzf - -C /opt \
-  && ln -s /opt/apache-maven-3.5.4 /opt/maven \
+  && ln -s /opt/apache-maven-3.6.3 /opt/maven \
   && ln -s /opt/maven/bin/mvn /usr/bin/mvn \
   && groupadd -r jboss -g 1000 \
   && useradd -u 1000 -r -g jboss -m -d /opt/jboss -s /sbin/nologin -c "JBoss user" jboss \
@@ -54,7 +54,7 @@ RUN echo securerandom.source=file:/dev/urandom >> /usr/lib/jvm/java/jre/lib/secu
 
 # Prometheus JMX exporter agent
  RUN mkdir -p /opt/prometheus/etc \
-  && curl http://central.maven.org/maven2/io/prometheus/jmx/jmx_prometheus_javaagent/0.3.1/jmx_prometheus_javaagent-0.3.1.jar \
+  && curl https://repo1.maven.org/maven2/io/prometheus/jmx/jmx_prometheus_javaagent/0.3.1/jmx_prometheus_javaagent-0.3.1.jar \
           -o /opt/prometheus/jmx_prometheus_javaagent.jar
  ADD prometheus-opts /opt/prometheus/prometheus-opts
  ADD prometheus-config.yml /opt/prometheus/prometheus-config.yml
@@ -69,7 +69,7 @@ EXPOSE 9779
 
 # Jolokia agent
 RUN mkdir -p /opt/jolokia/etc \
- && curl http://central.maven.org/maven2/org/jolokia/jolokia-jvm/1.6.2/jolokia-jvm-1.6.2-agent.jar \
+ && curl https://repo1.maven.org/maven2/org/jolokia/jolokia-jvm/1.6.2/jolokia-jvm-1.6.2-agent.jar \
          -o /opt/jolokia/jolokia.jar
 ADD jolokia-opts /opt/jolokia/jolokia-opts
 RUN chmod 444 /opt/jolokia/jolokia.jar \

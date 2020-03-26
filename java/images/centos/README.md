@@ -190,3 +190,22 @@ To enable automatic restarts, three things are required:
 3. Set environment variables `JAVA_DEBUG=true` or `DEBUG=true` and optionally `JAVA_DEBUG_PORT=<port-number>` or `DEBUG_PORT=<port-number>`, which defaults to 5005. Since the `DEBUG` variable clashes with Spring Boot's recognition of the same variable to enable Spring Boot debug logging, use `SPRINGBOOT_DEBUG` instead. 
 
 WARNING: Do not use devtools in production!!! This can be accomplished in Maven using a custom profile.
+
+
+### Build config add env. nexus service using short name
+
+```yaml
+env:
+  - name: MAVEN_MIRROR_URL
+    value: 'http://nexus.mtm-cicd.svc:8081/content/groups/public/'
+  - name: NEXUS_USER
+    valueFrom:
+      secretKeyRef:
+        key: username
+        name: nexus-userpass
+  - name: NEXUS_PASSWORD
+    valueFrom:
+      secretKeyRef:
+        key: password
+        name: nexus-userpass
+```

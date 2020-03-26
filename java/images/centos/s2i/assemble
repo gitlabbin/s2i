@@ -101,9 +101,24 @@ function setup_maven() {
     xml="    <mirror>\
       <id>mirror.default</id>\
       <url>$MAVEN_MIRROR_URL</url>\
-      <mirrorOf>external:*</mirrorOf>\
+      <mirrorOf>*</mirrorOf>\
     </mirror>"
     sed -i "s|<!-- ### configured mirrors ### -->|$xml|" $HOME/.m2/settings.xml
+  fi
+
+  if [ -n "$NEXUS_USER" -a -n "$NEXUS_PASSWORD" ]; then
+
+    xml="    <server>\
+      <id>nexus-snapshots</id>\
+      <username>$NEXUS_USER</username>\
+      <password>$NEXUS_PASSWORD</password>\
+    </server>\
+    <server>\
+      <id>nexus-releases</id>\
+      <username>$NEXUS_USER</username>\
+      <password>$NEXUS_PASSWORD</password>\
+    </server>"
+    sed -i "s|<!-- ### configured servers ### -->|$xml|" $HOME/.m2/settings.xml
   fi
 
   if [ -f "${S2I_SOURCE_DIR}/configuration/settings.xml" ]; then
@@ -120,7 +135,11 @@ function build_maven() {
   local app_dir=$2
 
   # Default args: no tests, if a module is specified, only build this module
-  local maven_args=${MAVEN_ARGS:-package -DskipTests -Dmaven.javadoc.skip=true -Dmaven.site.skip=true -Dmaven.source.skip=true -Djacoco.skip=true -Dcheckstyle.skip=true -Dfindbugs.skip=true -Dpmd.skip=true -Dfabric8.skip=true -e -B}
+  local maven_args=${MAVEN_ARGS:-package -Djava.net.preferIPv4Stack=true -DskipTests -Dmaven.javadoc.skip=true -Dmaven.site.skip=true -Dmaven.source.skip=true -Djacoco.skip=true -Dcheckstyle.skip=true -Dfindbugs.skip=true -Dpmd.skip=true -Dfabric8.skip=true -e -B}
+
+  if [ -n "$NEXUS_USER" -a -n "$NEXUS_PASSWORD" ]; then
+    maven_args=${MAVEN_ARGS:-deploy -Djava.net.preferIPv4Stack=true -DskipTests -Dmaven.javadoc.skip=true -Dmaven.site.skip=true -Dmaven.source.skip=true -Djacoco.skip=true -Dcheckstyle.skip=true -Dfindbugs.skip=true -Dpmd.skip=true -Dfabric8.skip=true -e -B}
+  fi
 
   # If there is no user provided MAVEN_OPTS, use options from run-java.sh
   if [ -f ${RUN_JAVA_DIR}/run-java.sh -a -z "${MAVEN_OPTS}" ]; then
